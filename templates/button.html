@@ -1,63 +1,48 @@
 <div class="kakao-login-button-container">
-    <a href="#"><img src='https://developers.kakao.com/tool/resource/static/img/button/login/full/ko/kakao_login_medium_narrow.png'/></a>
+  <a href="#"
+    ><img
+      src="https://developers.kakao.com/tool/resource/static/img/button/login/full/ko/kakao_login_medium_narrow.png"
+  /></a>
 </div>
 
 <script>
-    function getKauthUrl(jsonData) {
-        // 전달할 파라미터 생성
-        var params = new URLSearchParams();
-        params.append("client_id", jsonData.client_id);
-        params.append("redirect_uri", jsonData.redirect_uri);
-        params.append("response_type", jsonData.response_type);
-        // 요청할 full url 정의
-        var apiUrl = jsonData.url + "?" + params.toString();
-        return apiUrl;
+  function openPopup(url) {
+    // 팝업 창의 크기 및 위치 설정
+    var popupWidth = 600;
+    var popupHeight = 600;
+    var left = (window.innerWidth - popupWidth) / 2;
+    var top = (window.innerHeight - popupHeight) / 2;
+    // 크기가 설정된 팝업 창을 열기
+    var popupWindow = window.open(
+      url,
+      "_blank",
+      "width=" + popupWidth + ", height=" + popupHeight + ", left=" + left + ", top=" + top
+    );
+    // 로그인 완료 후 팝업이 닫혔을 때 발생할 이벤트 정의
+    popupWindow.addEventListener("beforeunload", function () {
+      // 여기에 원하는 로직 정의
+    });
+    // 팝업 창이 차단되었을 때의 브라우저 alert
+    if (
+      !popupWindow ||
+      popupWindow.closed ||
+      typeof popupWindow.closed == "undefined"
+    ) {
+      alert("팝업이 차단되었습니다. 팝업을 허용해주세요.");
     }
+  }
 
-    function openPopup(url) {
-        // 팝업 창의 크기 및 위치 설정
-        var popupWidth = 600;
-        var popupHeight = 600;
-        var left = (window.innerWidth - popupWidth) / 2;
-        var top = (window.innerHeight - popupHeight) / 2;
-        // 크기가 설정된 팝업 창을 열기
-        var popupWindow = window.open(url, "_blank", "width=" + popupWidth + ", height=" + popupHeight + ", left=" + left + ", top=" + top);
-        // 로그인 완료 후 팝업이 닫혔을 때 발생할 이벤트 정의
-        popupWindow.addEventListener('beforeunload', function () {
-            // 여기에 원하는 로직 정의
-        });
-        // 팝업 창이 차단되었을 때의 브라우저 alert
-        if (!popupWindow || popupWindow.closed || typeof popupWindow.closed == 'undefined') {
-            alert("팝업이 차단되었습니다. 팝업을 허용해주세요.");
-        }
-    }
+  function makeClickEvent(dom,url) {
+    // DOM에 click 이벤트 생성
+    dom.addEventListener("click", async () => {
+      openPopup(url);
+    });
+  }
 
-    function makeClickEvent(dom){
-        // DOM에 click 이벤트 생성
-        dom.addEventListener('click', async () => {
-            //카카오 로그인 api 정보를 가져올 api 주소
-            var url = "http://localhost:8000/get_info_kakao_login";
-            // XMLHttpRequest 객체 생성
-            var xhr = new XMLHttpRequest();
-            // GET 요청 설정
-            xhr.open("GET", url, true);
-            // 응답완료 후 수행할 동작 정의
-            xhr.onreadystatechange = function () {
-                // 응답이 요청이 올바르게 처리되었는지 확인
-                if (xhr.readyState == 4 && xhr.status == 200) {
-                    // 응답을 json으로 파싱
-                    var jsonResponse = JSON.parse(xhr.responseText);
-                    // kakao auth url과 파라미터 생성
-                    var apiUrl = getKauthUrl(jsonResponse);
-                    // 팝업을 엶.
-                    openPopup(apiUrl);
-                }
-            };
-            // 요청 보내기
-            xhr.send();
-        });
-    }
-
-    // kakao로그인 이미지에 클릭 이벤트 생성
-    makeClickEvent(document.querySelector('.kakao-login-button-container a'));
+  // kakao 로그인 버튼으로 사용할 a태그의 DOM객체
+  const kakaoButton = document.querySelector(".kakao-login-button-container a");
+  // kakao authorization url
+  const kakaoAuthUrl = "{{kakao_login_url|safe}}";
+  // 이벤트 추가
+  makeClickEvent(kakaoButton, kakaoAuthUrl);
 </script>
